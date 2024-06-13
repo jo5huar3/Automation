@@ -65,8 +65,8 @@ def Search_for_Courses(classes : dict[list[Course]], queue : Queue, failed_searc
                         else:
                             class_count_element = driver.find_element(By.ID, 'win14divPTS_LIST_SUMMARY$0')
                             class_count_statement = class_count_element.text.split("\n")[1]
-                            """ Count does not match the number of class options that the search returned. """
                             if str(Course.Get_Count(course)) != class_count_statement.split(' ')[0]:
+                                """ Count does not match the number of class options that the search returned. """
                                 line_buffer_t.append(current_search + ": Appears in " + str(Course.Get_Count(course)) \
                                                      + " rows of the csv but fluid search returns: " + class_count_statement + ".\n")
                     except NoSuchElementException:
@@ -96,7 +96,7 @@ def Refresh_Home_Screen(driver : webdriver.Firefox, lock, flag_lock, continue_fl
         with flag_lock:
             if not continue_flag.value:
                 break
-        if (time.time() - start_time) > 15 * MINUTE:
+        if (time.time() - start_time) > 10 * MINUTE:
             with lock:
                 driver.get(driver.current_url)
             start_time = time.time()

@@ -10,8 +10,12 @@ from selenium.webdriver.common.by import By
 from selenium.common.exceptions import NoSuchElementException
 
 NUM_PROCESS = 2
-MAX_RETRY = 5
+MAX_RETRY = 1
 MINUTE = 60
+
+"""
+Windows powershell command to open browser: firefox.exe -marionette -start-debugger-server 2828
+"""
 
 class Course:
     """
@@ -161,13 +165,14 @@ def StartProcesses(classes : dict[list[Course]]):
         process = Process(target=Search_for_Courses, args=(failed_searches, queue, failed_search_queue, cookies, initial_url, lock))
         process.start()
         process.join()
-    continue_flag.value = 0
+    with flag_lock:
+        continue_flag.value = 0
     refresh_thread.join()
     while not queue.empty():
         line_buffer.append(queue.get())
     while not failed_search_queue.empty() and i == MAX_RETRY:
         course = failed_search_queue.get()
-        line_buffer.append(str(course[0] + " " + course[1] + ": Error unsuccessful search.\n"))
+        line_buffer.append(str(course[0]) + " " + str(course[1].Get_Course_Number()) + ": Error unsuccessful search.\n")
     return line_buffer
 
 def Find_Course_Index(courses : list[Course], course_number):

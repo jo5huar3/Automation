@@ -12,7 +12,8 @@ def Automate(input_set: list, driver: webdriver.Firefox, url_start: str, passwor
         try:
             driver.get(url_start)
             driver.switch_to.frame(driver.find_element(By.ID, "main_target_win0"))
-            driver.find_element(By.ID, "PSOPRDEFN_SRCH_OPRID").send_keys(emplid + Keys.ENTER)
+            driver.find_element(By.ID, "PSOPRDEFN_SRCH_OPRID").send_keys(emplid)
+            driver.find_element(By.ID, "#ICSearch").click()
             driver.find_element(By.ID, "ICTAB_0").click()
             driver.find_element(By.ID, "PSUSRPRFL_WRK_CHANGE_PWD_BTN").click()
             driver.find_element(By.ID, "PSUSRPRFL_WRK_OPERPSWD").send_keys(password_new)

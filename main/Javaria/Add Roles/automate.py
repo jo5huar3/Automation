@@ -10,20 +10,44 @@ RETRY = 3
 def Automate(input_set: dict[list], driver: webdriver.Firefox, url_start: str):
     fail_set = {}
     for emplid in input_set.keys():
-        for val in input_set[emplid]:
-            try: 
-                url_start = driver.current_url
-                driver.switch_to.frame(driver.find_element(By.ID, "main_target_win0"))
-                driver.find_element(By.ID, "PSOPRDEFN_SRCH_OPRID").send_keys(emplid + Keys.ENTER)
-                driver.find_element(By.ID, "ICTAB_2").click()
-                driver.find_element(By.ID, "PSROLEUSER_VW$new$0$$0").click()
-                driver.find_element(By.ID, "PSROLEUSER_VW_ROLENAME$1").send_keys(val)
-                driver.find_element(By.ID, "#ICSave").click()
-            except:
-                if emplid in fail_set.keys():
-                    fail_set[emplid].append(val)
-                else:
-                    fail_set[emplid] = [val]
+        try:
+            driver.get(url_start)
+            driver.switch_to.frame(driver.find_element(By.ID, "main_target_win0"))
+            driver.find_element(By.ID, "PSOPRDEFN_SRCH_OPRID").send_keys(emplid)
+            driver.find_element(By.ID, "#ICSearch").click()
+            driver.find_element(By.ID, "ICTAB_2").click()
+            view_all_triggered = False
+            for val in input_set[emplid]:
+                try: 
+                    result = str(driver.execute_script('return document.getElementById("PSROLEUSER_VW$hpage$0").options[0].text')).split(' ')
+                    user_roles_total = int(result[len(result) - 1])
+                    if user_roles_total > 10 and not view_all_triggered:
+                        view_all_triggered = True
+                        driver.find_element(By.ID, "PSROLEUSER_VW$hviewall$0").click()
+                    i = 0
+                    while i < user_roles_total:
+                        if driver.execute_script(f'return document.getElementById("PSROLEUSER_VW_DYNAMIC_SW${i}").checked'):
+                            user_role_cur = str(driver.find_element(By.ID, f'win0divPSROLEUSER_VW_ROLENAME${i}').text)
+                        else:
+                            user_role_cur = str(driver.execute_script(f'return document.getElementById("PSROLEUSER_VW_ROLENAME${i}").value'))
+                        if val == user_role_cur:
+                            break
+                        i += 1
+                    if i == user_roles_total:
+                        driver.find_element(By.ID, f"PSROLEUSER_VW$new${i - 1}$$0").click()
+                        driver.find_element(By.ID, f"PSROLEUSER_VW_ROLENAME${i}").send_keys(val)
+                        driver.find_element(By.ID, f"#ICSave").click()
+                except:
+                    if emplid in fail_set.keys():
+                        fail_set[emplid].append(val)
+                    else:
+                        fail_set[emplid] = [val]
+        except:
+            fail_set[emplid] = [val for val in input_set[emplid]]
+    try:
+        driver.get(url_start)
+    except:
+        pass
     return fail_set
 
 def Start(input_set: dict[list]):

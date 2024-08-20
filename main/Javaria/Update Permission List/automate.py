@@ -2,10 +2,12 @@ import csv
 import sys
 from selenium import webdriver
 from selenium.webdriver.firefox.service import Service
-from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.by import By
-from selenium.webdriver.support.ui import WebDriverWait
-
+'''
+Open firefox browser from the terminal with the following command:
+    firefox.exe -marionette -start-debugger-server 2828
+Navigate to the UHS Security search page then run the script to start automation.
+'''
 
 RETRY = 3
 
@@ -61,7 +63,6 @@ if __name__ == "__main__":
             for val in row[1:]:
                 if len(val) > 0:
                     input[key].append(val)
-    print(input)
     fail_set = Start(input)
     if len(fail_set) == 0:
         print("Automation complete for all input with 0 errors.")

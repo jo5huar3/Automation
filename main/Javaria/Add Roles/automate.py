@@ -4,8 +4,12 @@ from selenium import webdriver
 from selenium.webdriver.firefox.service import Service
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.by import By
-
-RETRY = 3
+'''
+Open firefox browser from the terminal with the following command:
+    firefox.exe -marionette -start-debugger-server 2828
+Navigate to the UHS Security search page then run the script to start automation.
+'''
+RETRY = 1
 
 def Automate(input_set: dict[list], driver: webdriver.Firefox, url_start: str):
     fail_set = {}
@@ -76,9 +80,9 @@ if __name__ == "__main__":
                     input[key].append(val)
     fail_set = Start(input)
     if len(fail_set) == 0:
-        print("Automation complete for all input, with 0 errors.")
+        print("Automation complete for all input with 0 errors.")
     else:
-        print("Automation complete with errors. The task could not be automated for the following input:")
+        print("Automation complete with errors. The task could not be automated for the following input:", end="")
         for emplid in fail_set.keys():
             print("\n" + str(emplid) + ": ", end="")
             for val in fail_set[emplid]:

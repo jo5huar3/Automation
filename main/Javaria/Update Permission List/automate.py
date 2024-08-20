@@ -21,6 +21,9 @@ def Automate(input_set: dict[list], driver: webdriver.Firefox, url_start: str):
                 driver.switch_to.frame(driver.find_element(By.ID, "main_target_win0"))
                 driver.find_element(By.ID, "PSOPRDEFN_SRCH_OPRID").send_keys(emplid)
                 driver.find_element(By.ID, "#ICSearch").click()
+                driver.execute_script(
+                    f'if(document.getElementById("ICTAB_0").getAttribute("aria-selected") == "false") {{ document.getElementById("ICTAB_0").click(); }}'
+                )
                 driver.find_element(By.ID, "PSOPRDEFN_OPRCLASS").clear()
                 driver.find_element(By.ID, "PSOPRDEFN_OPRCLASS").send_keys(val)
                 driver.find_element(By.ID, "#ICSave").click()

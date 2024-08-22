@@ -27,7 +27,7 @@ def Automate(input_set: list[tuple], driver: webdriver.Firefox, url_start: str):
             driver.find_element(By.ID, "PEOPLE_SRCH_EMPLID").clear()
             driver.find_element(By.ID, "PEOPLE_SRCH_EMPLID").send_keys(emplid)
             driver.find_element(By.ID, "#ICSearch").click()
-            driver.find_element(By.ID, "DERIVED_CC_ADD_PHOTO_BTN$0").click()
+            driver.find_element(By.ID, "DERIVED_CC_ADD_PHOTO_BTN$IMG$0").click()
             driver.switch_to.default_content()
             driver.switch_to.frame(driver.find_element(By.ID, "ptModFrame_0"))
             driver.find_element(By.NAME, "#ICOrigFileName").send_keys(str(photo))

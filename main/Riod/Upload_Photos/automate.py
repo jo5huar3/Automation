@@ -1,12 +1,18 @@
-import csv
 from pathlib import Path
 import sys
 from selenium import webdriver
 from selenium.webdriver.firefox.service import Service
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.by import By
-
+'''
+Open firefox browser from the terminal with the following command:
+    firefox.exe -marionette -start-debugger-server 2828
+Navigate to the search page then run the script to start automation.
+'''
 RETRY = 1
+
+SHORT_WAIT = 10
+LONG_WAIT = 60
 
 success_set = []
 
@@ -14,6 +20,7 @@ def Automate(input_set: list[tuple], driver: webdriver.Firefox, url_start: str):
     fail_set = []
     for emplid, photo in input_set:
         try:
+            driver.implicitly_wait(SHORT_WAIT)
             driver.get(url_start)
             driver.switch_to.frame(driver.find_element(By.ID, "ptifrmtgtframe"))
             driver.find_element(By.ID, "PEOPLE_SRCH_EMPLID").send_keys(emplid)
@@ -27,11 +34,10 @@ def Automate(input_set: list[tuple], driver: webdriver.Firefox, url_start: str):
             driver.switch_to.frame(driver.find_element(By.ID, "ptifrmtgtframe"))
             driver.find_element(By.ID, "#ICSave")
             driver.execute_script(f'document.getElementById("#ICSave").click()')
+            driver.implicitly_wait(LONG_WAIT)
             driver.find_element(By.ID, "win0div$ICField4")
             confirmation_msg = driver.execute_script(f'return document.getElementById("win0div$ICField4").children[0].innerText')
-            if(confirmation_msg == "Save Confirmation"):
-                success_set.append(emplid)
-            else:
+            if(confirmation_msg != "Save Confirmation"):
                 fail_set.append((emplid, photo)) 
         except:
             fail_set.append((emplid, photo))
@@ -46,7 +52,7 @@ def Start(input_set: list[tuple]):
     fail_set = []
     driver = webdriver.Firefox(service=Service(
         service_args=['--marionette-port', '2828', '--connect-existing']))
-    driver.implicitly_wait(5)
+    driver.implicitly_wait(SHORT_WAIT)
     url_start = driver.current_url
     i = 1
     fail_set = Automate(input_set, driver, url_start)
@@ -55,14 +61,16 @@ def Start(input_set: list[tuple]):
         fail_set = Automate(fail_set, driver, url_start)
     return fail_set
 
-
+# C:\Users\jrlewis8\Python\Automation\main\Riod\Upload_Photos\test
 if __name__ == "__main__":
-    directory = Path('C:\\Users\\jrlewis8\\Python\\Automation\\main\\Riod\\Upload_Photos\\test')
+    directory = Path(sys.argv[1])
     input_set = [(file.name.split('.')[0], file) for file in directory.iterdir()]
     fail_set = Start(input_set)
     if len(fail_set) == 0:
-        print("Automation complete for all input, with 0 errors.")
+        print("Automation complete for all input with 0 errors.")
     else:
         print("Automation complete with errors. The task could not be automated for the following input:")
         for emplid, photo in fail_set:
-            print(str(emplid) + ": " + str(photo))
+            print(str(photo))
+        with open(str(sys.argv[1]) + "\\errors.txt", "w") as file:
+            file.writelines([str(f[1]) + "\n" for f in fail_set])

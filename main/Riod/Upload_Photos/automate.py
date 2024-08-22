@@ -24,6 +24,7 @@ def Automate(input_set: list[tuple], driver: webdriver.Firefox, url_start: str):
             driver.implicitly_wait(WAIT_SHORT)
             driver.get(url_start)
             driver.switch_to.frame(driver.find_element(By.ID, "ptifrmtgtframe"))
+            driver.find_element(By.ID, "PEOPLE_SRCH_EMPLID").clear()
             driver.find_element(By.ID, "PEOPLE_SRCH_EMPLID").send_keys(emplid)
             driver.find_element(By.ID, "#ICSearch").click()
             driver.find_element(By.ID, "DERIVED_CC_ADD_PHOTO_BTN$0").click()

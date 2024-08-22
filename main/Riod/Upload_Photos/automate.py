@@ -8,19 +8,20 @@ from selenium.webdriver.common.by import By
 Open firefox browser from the terminal with the following command:
     firefox.exe -marionette -start-debugger-server 2828
 Navigate to the search page then run the script to start automation.
+When running the script supply the full path to the folder that contains
+the photos you wish to upload as a command line argument.
 '''
-RETRY = 1
+RETRY = 2
 
-SHORT_WAIT = 10
-LONG_WAIT = 60
+WAIT_SHORT = 10
+WAIT_LONG = 60
 
-success_set = []
 
 def Automate(input_set: list[tuple], driver: webdriver.Firefox, url_start: str):
     fail_set = []
     for emplid, photo in input_set:
         try:
-            driver.implicitly_wait(SHORT_WAIT)
+            driver.implicitly_wait(WAIT_SHORT)
             driver.get(url_start)
             driver.switch_to.frame(driver.find_element(By.ID, "ptifrmtgtframe"))
             driver.find_element(By.ID, "PEOPLE_SRCH_EMPLID").send_keys(emplid)
@@ -30,13 +31,13 @@ def Automate(input_set: list[tuple], driver: webdriver.Firefox, url_start: str):
             driver.switch_to.frame(driver.find_element(By.ID, "ptModFrame_0"))
             driver.find_element(By.NAME, "#ICOrigFileName").send_keys(str(photo))
             driver.find_element(By.ID, "Upload").click()
+            driver.implicitly_wait(WAIT_LONG)
             driver.switch_to.default_content()
             driver.switch_to.frame(driver.find_element(By.ID, "ptifrmtgtframe"))
-            driver.find_element(By.ID, "#ICSave")
-            driver.execute_script(f'document.getElementById("#ICSave").click()')
-            driver.implicitly_wait(LONG_WAIT)
-            driver.find_element(By.ID, "win0div$ICField4")
-            confirmation_msg = driver.execute_script(f'return document.getElementById("win0div$ICField4").children[0].innerText')
+            element = driver.find_element(By.ID, "#ICSave")
+            driver.execute_script(f'arguments[0].click()', element)
+            element = driver.find_element(By.ID, "win0div$ICField4")
+            confirmation_msg = driver.execute_script(f'return arguments[0].children[0].innerText', element)
             if(confirmation_msg != "Save Confirmation"):
                 fail_set.append((emplid, photo)) 
         except:
@@ -52,7 +53,7 @@ def Start(input_set: list[tuple]):
     fail_set = []
     driver = webdriver.Firefox(service=Service(
         service_args=['--marionette-port', '2828', '--connect-existing']))
-    driver.implicitly_wait(SHORT_WAIT)
+    driver.implicitly_wait(WAIT_SHORT)
     url_start = driver.current_url
     i = 1
     fail_set = Automate(input_set, driver, url_start)

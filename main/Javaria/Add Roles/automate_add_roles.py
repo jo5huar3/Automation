@@ -8,6 +8,12 @@ from selenium.webdriver.common.by import By
 Open firefox browser from the terminal with the following command:
     firefox.exe -marionette -start-debugger-server 2828
 Navigate to the UHS Security search page then run the script to start automation.
+
+Create a csv file with emplids as the first column to and the roles to add as 
+the following columns. The first row should contain column titles.
+
+To run use command: 
+    'python automate_add_roles.py <path to csv file>' 
 '''
 RETRY = 1
 

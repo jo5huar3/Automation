@@ -8,6 +8,10 @@ from selenium.webdriver.support import expected_conditions as EC
 Open firefox browser from the terminal with the following command:
     firefox.exe -marionette -start-debugger-server 2828
 Navigate to the UHS Security search page then run the script to start automation.
+
+Create a txt file with the emplids to change seperated by a space.
+To run use command: 
+    'python automate_add_roles.py <path to txt file> <new password>' 
 '''
 RETRY = 1
 

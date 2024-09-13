@@ -1,4 +1,5 @@
 import sys
+import time
 from selenium import webdriver
 from selenium.webdriver.firefox.service import Service
 from selenium.webdriver.common.by import By
@@ -21,18 +22,37 @@ def Automate(input_set: list, driver: webdriver.Firefox, url_start: str, passwor
         try:
             driver.get(url_start)
             driver.switch_to.frame(driver.find_element(By.ID, "main_target_win0"))
-            driver.find_element(By.ID, "PSOPRDEFN_SRCH_OPRID").send_keys(emplid)
-            driver.find_element(By.ID, "#ICSearch").click()
+            element = driver.find_element(By.ID, "PSOPRDEFN_SRCH_OPRID")
+            driver.execute_script(f'arguments[0].value = "{emplid}"', element)
+            element = driver.find_element(By.ID, "#ICSearch")
+            driver.execute_script(f'arguments[0].click()', element)
+            element = driver.find_element(By.ID, "ICTAB_0")
             driver.execute_script(
-                f'if(document.getElementById("ICTAB_0").getAttribute("aria-selected") == "false") {{ document.getElementById("ICTAB_0").click(); }}'
+                f'if(arguments[0].getAttribute("aria-selected") == "false") {{ arguments[0].click(); }}', element
             )
-            driver.find_element(By.ID, "PSUSRPRFL_WRK_CHANGE_PWD_BTN").click()
-            driver.find_element(By.ID, "PSUSRPRFL_WRK_OPERPSWD").send_keys(password_new)
-            driver.find_element(By.ID, "PSUSRPRFL_WRK_OPERPSWDCONF").send_keys(password_new)
-            driver.find_element(By.ID, "#ICSave").click()
-            driver.execute_script(
-                f'if(document.getElementById("PSUSRPRFL_WRK_OPERPSWD")) {{throw new Error("Password did not save.");}}'
-            )
+            element = driver.find_element(By.ID, "PSUSRPRFL_WRK_CHANGE_PWD_BTN")
+            driver.execute_script(f'arguments[0].click()', element)
+            element = driver.find_element(By.ID, "PSUSRPRFL_WRK_OPERPSWD")
+            #driver.execute_script(f'arguments[0].value = "{password_new}"', element)
+            element.send_keys(password_new)
+            element = driver.find_element(By.ID, "PSUSRPRFL_WRK_OPERPSWDCONF")
+            #driver.execute_script(f'arguments[0].value = "{password_new}"', element)
+            element.send_keys(password_new)
+            element = driver.find_element(By.ID, "#ICSave")
+            driver.execute_script(f'arguments[0].click()', element)
+            driver.switch_to.default_content()
+            WebDriverWait(driver, 5).until(
+                lambda e: e.execute_script(f'return document.readyState') == 'complete')
+            
+            try:
+                driver.implicitly_wait(0.5)
+                alert = driver.find_element(By.ID, "alertmsg")
+                #print("Alert msg found.")
+                line_buffer.append(emplid)
+            except:
+                pass
+            finally:
+                driver.implicitly_wait(5)
         except:
             line_buffer.append(emplid)
     try:
@@ -61,10 +81,13 @@ if __name__ == "__main__":
     unique_list = []
     [unique_list.append(val) for val in input if val not in unique_list]
     password_new = sys.argv[2]
+    start_time = time.time()
     fail_set = Start(unique_list, password_new)
+    total_time = time.time() - start_time
     if len(fail_set) == 0:
         print("Automation complete for all input with 0 errors.")
     else:
-        print("Automation complete with errors. The task could not be automated for the following input: ", end="")
+        print("Automation complete with errors. The task could not be automated for the following input: ")
         for fail in fail_set:
-            print("\n" + str(fail), end=" ")
+            print(str(fail))
+    print(f'Total time taken for {len(unique_list)} resets is {f"{total_time:.2f}"} seconds.')
